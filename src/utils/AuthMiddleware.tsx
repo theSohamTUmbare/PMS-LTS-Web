@@ -11,35 +11,39 @@ interface Props {
 }
 
 const AuthMiddleware = ({ children }: Props) => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(false); // Use null to indicate loading state
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [user, setUser] = useState<string | null>("");
-  const token = Cookies.get("auth-token"); // Get the JWT from the cookie
+  const token = Cookies.get("auth-cookie");
 
   useEffect(() => {
     const verifyToken = async () => {
       if (token) {
         try {
-          const response = await axios.post("/api/verify-token"); //TODO:  Replace with your actual API endpoint
-          setIsAuthenticated(response.data.isAuthenticated); // Set the authentication state
-          setUser(response.data.user);
+          const response = await axios.get("/api/v1/admin/verify-token");
+          console.log(response.data);
+          setIsAuthenticated(response.data.isAuthenticated);
+          setUser(response.data.name);
         } catch (error) {
           console.error("Token verification failed:", error);
-          setIsAuthenticated(false); // Set to false if there's an error
+          setIsAuthenticated(false);
         }
       } else {
-        setIsAuthenticated(false); // No token means not authenticated
+        setIsAuthenticated(false);
       }
     };
 
-    verifyToken(); // Call the verification function
+    verifyToken();
   }, [token]);
 
-  // Redirect to login page if not authenticated
+  if (isAuthenticated === null) {
+    return <UserContext.Provider value={user}>{children}</UserContext.Provider>;
+  }
+
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
-  return <UserContext.Provider value={user}>{children}</UserContext.Provider>; // Render children if authenticated
+  return <UserContext.Provider value={user}>{children}</UserContext.Provider>;
 };
 
 export default AuthMiddleware;
