@@ -13,7 +13,7 @@ export interface AlertProps {
   message: string;
 }
 
-const AlertData = ({ index, type, message }: AlertProps) => {
+const AlertData: React.FC<AlertProps> = ({ index, type, message }) => {
   const icon = type === AlertType.Critical ? faTriangleExclamation :
                type === AlertType.Warning ? faCircleExclamation :
                faInfoCircle;
