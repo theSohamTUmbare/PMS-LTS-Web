@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 
-const Hero = () => {
+const Hero: React.FC = () => {
   const navigate = useNavigate();
   return (
     <div className="relative bg-slate-900 text-white py-16 px-6 sm:px-12 flex flex-col items-center justify-center min-h-[60vh]">

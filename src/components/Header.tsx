@@ -7,7 +7,7 @@ import { UserContext } from "../utils/AuthMiddleware";
 import axios from "axios";
 import Cookies from "js-cookie";
 
-const Header = () => {
+const Header: React.FC = () => {
   const user: string | null = useContext(UserContext);
 
   const [menuOpen, setMenuOpen] = useState(false);

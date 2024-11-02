@@ -39,7 +39,7 @@ const incidentData: Incident[] = [
   // Add more incidents as needed
 ];
 
-const Home = () => {
+const Home: React.FC = () => {
   return (
     <div className="mx-6 sm:mx-12 my-8">
       <div className="flex flex-col lg:flex-row gap-6">
