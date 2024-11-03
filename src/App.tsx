@@ -12,6 +12,7 @@ import Login from "./pages/Login";
 import Home from "./pages/Home";
 import Management from "./pages/Management";
 import AuthMiddleware from "./utils/AuthMiddleware";
+import CellAssign from "./pages/CellAssign";
 import { UserContext } from "./utils/AuthMiddleware";
 
 function App() {
@@ -63,6 +64,14 @@ function App() {
                 {user ? <Navigate to="/" /> :<Login />}
               </Layout>
               // </AuthMiddleware>
+            }
+          />
+          <Route
+            path="/cell-assign"
+            element={
+                <Layout>
+                  <CellAssign />
+                </Layout>
             }
           />
           <Route path="*" element={<Navigate to="/" />} />
