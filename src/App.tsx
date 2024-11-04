@@ -11,6 +11,7 @@ import Hero from "./components/Hero";
 import Login from "./pages/Login";
 import Home from "./pages/Home";
 import Management from "./pages/Management";
+import Map from "./pages/Map";
 import AuthMiddleware from "./utils/AuthMiddleware";
 import { UserContext } from "./utils/AuthMiddleware";
 
@@ -51,6 +52,16 @@ function App() {
               <AuthMiddleware>
                 <Layout>
                   <Management />
+                </Layout>
+              </AuthMiddleware>
+            }
+          />
+          <Route
+            path="/live-map"
+            element={
+              <AuthMiddleware>
+                <Layout>
+                  <Map />
                 </Layout>
               </AuthMiddleware>
             }

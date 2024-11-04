@@ -1,5 +1,5 @@
-import Alert, { AlertProps, AlertType } from "../components/Alert";
-import Incidents, { Incident } from "../components/Incident";
+import Alert, { AlertProps, AlertType } from "../components/Notifications/Alert";
+import Incidents, { Incident } from "../components/Notifications/Incident";
 
 const alertData: AlertProps[] = [
   {
