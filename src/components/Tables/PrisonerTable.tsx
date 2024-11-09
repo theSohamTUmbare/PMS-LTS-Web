@@ -38,67 +38,8 @@ const PrisonerTable: React.FC = () => {
 
     return (
         <div className="p-4">
-            {/* <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center space-x-8">
-                    <div className="flex items-center space-x-4">
-                        <span className="text-blue-600 font-semibold">Prisoners</span>
-                        <span className="bg-blue-100 text-blue-600 rounded-full px-2 py-1 text-xs">{prisoners.length}</span>
-                    </div>
-                    <div className="flex items-center space-x-4">
-                        <span className="text-blue-600 font-semibold">Police</span>
-                        <span className="bg-blue-100 text-blue-600 rounded-full px-2 py-1 text-xs">{prisoners.length}</span>
-                    </div>
-                    <div className="flex items-center space-x-4">
-                        <span className="text-blue-600 font-semibold">Guards</span>
-                        <span className="bg-blue-100 text-blue-600 rounded-full px-2 py-1 text-xs">{prisoners.length}</span>
-                    </div>
-                </div>
-                <div className="flex items-center space-x-4">
-                    <input type="text" placeholder="Search prisoner" className="border border-gray-300 rounded-md px-4 py-2"/>
-                    <button className="bg-blue-600 text-white px-4 py-2 rounded-md">Create New Prisoner</button>
-                    <button className="bg-gray-600 text-white px-4 py-2 rounded-md" onClick={() => setFilterVisible(!filterVisible)}>Filter</button>
-                </div>
-            </div>
-            {filterVisible && (
-                <div className="mb-4 p-4 bg-gray-100 rounded-md">
-                <div className="grid grid-cols-2 gap-4">
-                    <div>
-                        <label className="block text-gray-700">First Name</label>
-                        <input type="text" className="border border-gray-300 rounded-md px-4 py-2 w-full"/>
-                    </div>
-                    <div>
-                        <label className="block text-gray-700">Last Name</label>
-                        <input type="text" className="border border-gray-300 rounded-md px-4 py-2 w-full"/>
-                    </div>
-                    <div>
-                        <label className="block text-gray-700">Gender</label>
-                        <select className="border border-gray-300 rounded-md px-4 py-2 w-full">
-                            <option value="">All</option>
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label className="block text-gray-700">Status</label>
-                        <select className="border border-gray-300 rounded-md px-4 py-2 w-full">
-                            <option value="">All</option>
-                            <option value="Incarcerated">Incarcerated</option>
-                            <option value="Released">Released</option>
-                            <option value="On Trial">On Trial</option>
-                            <option value="Transferred">Transferred</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label className="block text-gray-700">Entry Date</label>
-                        <input type="date" className="border border-gray-300 rounded-md px-4 py-2 w-full"/>
-                    </div>
-                </div>
-                <div className="mt-4">
-                    <button className="bg-blue-600 text-white px-4 py-2 rounded-md">Apply Filters</button>
-                </div>
-            </div>
-        )} */}
-                    
+
+
             <table className="min-w-full bg-white border border-gray-200">
                 <thead>
                     <tr className="bg-gray-100">
@@ -128,7 +69,7 @@ const PrisonerTable: React.FC = () => {
                                     {prisoner.status}
                                 </span>
                             </td>
-                        
+
                             <td className="py-2 px-4 border-b border-gray-200 relative">
                                 <button onClick={() => toggleDropdown(prisoner.prisoner_id)} className="text-gray-600 hover:text-gray-900">
                                     <FontAwesomeIcon icon={faEllipsis} />
