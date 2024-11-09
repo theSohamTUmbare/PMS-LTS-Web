@@ -33,7 +33,7 @@ const PrisonerTable: React.FC = () => {
 
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
-        fetchPrisoners(page);
+        // fetchPrisoners(page);
     };
 
     return (
