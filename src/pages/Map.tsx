@@ -4,40 +4,72 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
 import "leaflet-draw";
-import { io } from "socket.io-client";
+import axios from "axios";
 
 interface Location {
-  lat: number;
-  lng: number;
+  id: string; // Unique identifier for each device
+  latitude: number;
+  longitude: number;
 }
 
 const Map: React.FC = () => {
   const mapRef = useRef<L.Map | null>(null);
   const drawnItemsRef = useRef<L.FeatureGroup>(new L.FeatureGroup());
-  const markerRef = useRef<L.Marker | null>(null);
-  const [location, setLocation] = useState<Location>({ lat: 51.505, lng: -0.09 });
+  const [locations, setLocations] = useState<Location[]>([]); // Store multiple device locations
 
   useEffect(() => {
-    const socket = io("http://localhost:7000");
+    // Fetch location data periodically for multiple devices
+    const fetchLocations = async () => {
+      try {
+        const response = await axios.get("/api/v1/locations");
+        if (response.data.length >=  0) {
+          setLocations(response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching locations:", error);
+      }
+    };
 
-    socket.on("locationUpdate", (newLocation: Location) => {
-      setLocation(newLocation);
+    // Fetch locations every 5 seconds
+    const interval = setInterval(fetchLocations, 2000);
+
+    return () => clearInterval(interval); // Cleanup on unmount
+  }, []);
+
+  useEffect(() => { 
+    if (!mapRef.current) return;
+
+    const map = mapRef.current;
+
+    // Clear existing markers before adding new ones
+    map.eachLayer((layer) => {
+      if (layer instanceof L.Marker) {
+        map.removeLayer(layer);
+      }
     });
 
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
+    // Add markers for all device locations
+    locations.forEach((location) => {
+      L.marker([location.latitude, location.longitude], {
+        icon: L.icon({
+          iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
+          iconSize: [25, 41],
+          iconAnchor: [12, 41],
+          popupAnchor: [1, -34],
+          shadowSize: [41, 41],
+        }),
+      })
+        .addTo(map)
+        .bindPopup(`Device ID: ${location.id}`);
+    });
+  }, [locations]);
 
   const initializeMapControls = () => {
     if (!mapRef.current) return;
 
     const map = mapRef.current;
-
-    // Add the feature group to the map
     drawnItemsRef.current.addTo(map);
 
-    // Initialize Draw Control with Options
     const drawControl = new L.Control.Draw({
       draw: {
         polyline: false,
@@ -65,61 +97,30 @@ const Map: React.FC = () => {
       },
     });
 
-    // Add the draw control to the map
-    map.addControl(drawControl); 
+    map.addControl(drawControl);
 
-    // Event handler for drawn shapes
     const onCreated = (event: L.DrawEvents.Created) => {
       const layer = event.layer;
       drawnItemsRef.current.addLayer(layer);
       if (event.layerType === "circle" && layer instanceof L.Circle) {
-        const radius = layer.getRadius();
-        const center = layer.getLatLng();
-        console.log("Circle created with radius:", radius, "and center:", center);
+        console.log("Circle created with radius:", layer.getRadius(), "and center:", layer.getLatLng());
       } else if (event.layerType === "polygon" && layer instanceof L.Polygon) {
-        const latLngs = layer.getLatLngs();
-        console.log("Polygon created with coordinates:", latLngs);
+        console.log("Polygon created with coordinates:", layer.getLatLngs());
       }
     };
 
     map.on(L.Draw.Event.CREATED, onCreated);
 
-    // Cleanup function to remove the drawing control and event listeners
     return () => {
       map.off(L.Draw.Event.CREATED, onCreated);
-      map.removeControl(drawControl); // Remove the draw control on unmount
+      map.removeControl(drawControl);
     };
   };
 
   useEffect(() => {
-    if (!mapRef.current) return;
     const cleanupControls = initializeMapControls();
-    return cleanupControls; // Return cleanup function
-  }, []); // Only runs once on mount
-
-//   useEffect(() => {
-//     if (!mapRef.current) return;
-
-//     const map = mapRef.current;
-
-//     if (markerRef.current) {
-//       map.removeLayer(markerRef.current);
-//     }
-
-//     markerRef.current = L.marker([location.lat, location.lng])
-//       .addTo(map)
-//       .bindPopup("Current Location")
-//       .openPopup();
-
-//     const updateMarkerPosition = () => {
-//       if (markerRef.current) {
-//         markerRef.current.setLatLng([location.lat, location.lng]);
-//         map.panTo([location.lat, location.lng]);
-//       }
-//     };
-
-//     updateMarkerPosition();
-//   }, [location]); // Update marker when location changes
+    return cleanupControls;
+  }, []);
 
   const SetMapRef: React.FC = () => {
     const map = useMap();
@@ -130,9 +131,10 @@ const Map: React.FC = () => {
   return (
     <div className="relative">
       <MapContainer
-        center={[location.lat, location.lng]}
+        center={[16.2487029, 77.3660572]} // Initial map center
         zoom={13}
         style={{ height: "100vh", width: "100%" }}
+        whenCreated={(mapInstance) => (mapRef.current = mapInstance)} 
       >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
