@@ -1,5 +1,5 @@
 import React from 'react';
-import CellSelection from '../components/CellSelection';
+import CellSelection from '../components/AddingPrisoner/CellSelection';
 
 const CellAssign: React.FC = () => {
     return (
