@@ -27,16 +27,38 @@ const SearchAndActionButtons: React.FC<SearchAndActionButtonsProps> = ({ selecte
 
     const handlePrisonerSubmit = async (prisonerData: any) => {
         try {
-            await fetch('/api/v1/prisoner/add', {
+            // First, create the prisoner
+            const prisonerResponse = await fetch('/api/v1/prisoner/add', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(prisonerData)
             });
-            alert("Prisoner created successfully!");
+            
+            if (prisonerResponse.ok) {
+                alert("Prisoner created successfully!");
+    
+                // Extract the cell ID from prisonerData
+                const cellId = prisonerData.cell_id;
+                console.log(prisonerData);
+                // Now, call the second API to update the cell occupant
+                const cellResponse = await fetch(`/api/v1/cell_controls/addOccupant/${cellId}`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+    
+                if (cellResponse.ok) {
+                    alert("Cell occupant updated successfully!");
+                } else {
+                    console.error("Error updating cell occupant:", cellResponse.statusText);
+                }
+            } else {
+                console.error("Error creating prisoner:", prisonerResponse.statusText);
+            }
         } catch (error) {
-            console.error("Error creating prisoner:", error);
+            console.error("Error in handlePrisonerSubmit:", error);
         }
     };
+    
 
     return (
         <div className="flex items-center space-x-4">
