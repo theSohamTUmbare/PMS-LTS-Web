@@ -81,11 +81,11 @@ function App() {
           <Route
             path="/login"
             element={
-              <AuthMiddleware>
+              
               <Layout>
                 {user ? <Navigate to="/" /> :<Login />}
               </Layout>
-              </AuthMiddleware>
+              
             }
           />
           <Route
