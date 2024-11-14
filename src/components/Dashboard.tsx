@@ -3,7 +3,7 @@ import PrisonerTable from './Tables/PrisonerTable';
 import PoliceTable from './Tables/PoliceTable';
 import GuardTable from './Tables/GuardTable';
 import TabControls from './TabControl';
-import SearchAndActionButtons from './SeachAndActionButtons';
+import SearchAndActionButtons from './SearchAndActionButtons';
 import FilterPanel from './FilterPanel';
 
 const Dashboard: React.FC = () => {
