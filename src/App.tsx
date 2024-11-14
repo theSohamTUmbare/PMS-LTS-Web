@@ -15,6 +15,7 @@ import Map from "./pages/Map";
 import AuthMiddleware from "./utils/AuthMiddleware";
 import CellAssign from "./pages/CellAssign";
 import { UserContext } from "./utils/AuthMiddleware";
+import PrisonerDetails from "./pages/PrisonerDetails";
 
 function App() {
   const [user, setUser] = useState<string | null>(null);
@@ -58,6 +59,16 @@ function App() {
             }
           />
           <Route
+            path="/prisoner-details/:id"
+            element={
+              <AuthMiddleware>
+                <Layout>
+                  <PrisonerDetails />
+                </Layout>
+              </AuthMiddleware>
+            }
+          />
+          <Route
             path="/live-map"
             element={
               <AuthMiddleware>
@@ -70,11 +81,11 @@ function App() {
           <Route
             path="/login"
             element={
-              // <AuthMiddleware>
+              <AuthMiddleware>
               <Layout>
                 {user ? <Navigate to="/" /> :<Login />}
               </Layout>
-              // </AuthMiddleware>
+              </AuthMiddleware>
             }
           />
           <Route

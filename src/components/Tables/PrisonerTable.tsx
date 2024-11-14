@@ -3,8 +3,10 @@ import { Prisoner } from '../../utils/prisonerApi';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEllipsis } from '@fortawesome/free-solid-svg-icons';
+import { useNavigate } from "react-router-dom";
 
 const PrisonerTable: React.FC = () => {
+    const navigate = useNavigate();
     const [prisoners, setPrisoners] = useState<Prisoner[]>([]);
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [totalPages, setTotalPages] = useState<number>(1);
@@ -34,6 +36,10 @@ const PrisonerTable: React.FC = () => {
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
         // fetchPrisoners(page);
+    };
+
+    const goToDetailsPage = (id: number) => {
+        navigate(`/prisoner-details/${id}`);
     };
 
     return (
@@ -137,7 +143,7 @@ const PrisonerTable: React.FC = () => {
                                     <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-md shadow-lg z-10">
                                         <button className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">Edit</button>
                                         <button className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">Delete</button>
-                                        <button className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">More Details</button>
+                                        <button onClick={() => goToDetailsPage(prisoner.prisoner_id)}  className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">More Details</button>
                                     </div>
                                 )}
                             </td>
