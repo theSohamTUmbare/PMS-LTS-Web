@@ -8,9 +8,7 @@ const PrisonerTable: React.FC = () => {
     const [prisoners, setPrisoners] = useState<Prisoner[]>([]);
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [totalPages, setTotalPages] = useState<number>(1);
-
     const [dropdown, setDropdown] = useState<number | null>(null);
-
     const toggleDropdown = (id: number) => {
         setDropdown(dropdown === id ? null : id);
     };
@@ -33,13 +31,13 @@ const PrisonerTable: React.FC = () => {
 
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
-        // fetchPrisoners(page);
+        fetchPrisoners(page);
     };
 
     return (
         <div className="p-4">
-
-
+           
+                    
             <table className="min-w-full bg-white border border-gray-200">
                 <thead>
                     <tr className="bg-gray-100">
@@ -69,7 +67,7 @@ const PrisonerTable: React.FC = () => {
                                     {prisoner.status}
                                 </span>
                             </td>
-
+                        
                             <td className="py-2 px-4 border-b border-gray-200 relative">
                                 <button onClick={() => toggleDropdown(prisoner.prisoner_id)} className="text-gray-600 hover:text-gray-900">
                                     <FontAwesomeIcon icon={faEllipsis} />
