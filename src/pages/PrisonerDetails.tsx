@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import prisonerImage from "./prisoner.png";
+import prisonerImage from "../assets/prisoner.png";
 
 
 
