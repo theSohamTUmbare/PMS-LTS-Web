@@ -6,23 +6,35 @@ interface PrisonerFormModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (prisonerData: any) => void;
+  existingPrisonerData?: { 
+    first_name: string;
+    last_name: string;
+    date_of_birth: string;
+    gender: string;
+    national_id: string;
+    entry_date: string;
+    status: string;
+    cell_id: string;
+  };
 }
 
 const AddPrisonerForm: React.FC<PrisonerFormModalProps> = ({
   isOpen,
   onClose,
   onSubmit,
+  existingPrisonerData,
 }) => {
   const [formData, setFormData] = useState({
-    first_name: "",
-    last_name: "",
-    date_of_birth: "",
-    gender: "",
-    national_id: "",
-    entry_date: "",
-    status: "",
-    cell_id: "",
+    first_name: existingPrisonerData?.first_name || "",
+    last_name: existingPrisonerData?.last_name || "",
+    date_of_birth: existingPrisonerData?.date_of_birth || "",
+    gender: existingPrisonerData?.gender || "",
+    national_id: existingPrisonerData?.national_id || "",
+    entry_date: existingPrisonerData?.entry_date || "",
+    status: existingPrisonerData?.status || "",
+    cell_id: existingPrisonerData?.cell_id || "",
   });
+
 
   const [cellSelectionOpen, setCellSelectionOpen] = useState(false);
 
