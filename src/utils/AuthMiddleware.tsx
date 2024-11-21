@@ -20,7 +20,7 @@ const AuthMiddleware = ({ children }: Props) => {
       if (token) {
         try {
           const response = await axios.get("/api/v1/admin/verify-token");
-          console.log(response.data);
+          // console.log(response.data);
           setIsAuthenticated(response.data.isAuthenticated);
           setUser(response.data.name);
         } catch (error) {
