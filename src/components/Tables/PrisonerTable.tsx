@@ -40,6 +40,20 @@ const PrisonerTable: React.FC = () => {
         navigate(`/prisoner-details/${id}`);
     };
 
+    const handleDeletePrisoner = async (prisonerId) => {
+        if (window.confirm("Are you sure you want to delete this prisoner?")) {
+          try {
+            await axios.delete(`/api/v1/prisoner/delete/${prisonerId}`);
+            alert("Prisoner deleted successfully.");
+            window.location.reload();
+          } catch (error) {
+            alert(
+              error.response?.data?.message || "Failed to delete prisoner. Please try again."
+            );
+          }
+        }
+      };
+
     return (
         <div className="p-4">
            
@@ -80,8 +94,8 @@ const PrisonerTable: React.FC = () => {
                                 </button>
                                 {dropdown === prisoner.prisoner_id && (
                                     <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-md shadow-lg z-10">
-                                        <button className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">Edit</button>
-                                        <button className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">Delete</button>
+                                        <button onClick={() => goToDetailsPage(prisoner.prisoner_id)} className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">Edit</button>
+                                        <button onClick={() => handleDeletePrisoner(prisoner.prisoner_id)} className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">Delete</button>
                                         <button onClick={() => goToDetailsPage(prisoner.prisoner_id)}  className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">More Details</button>
                                     </div>
                                 )}
