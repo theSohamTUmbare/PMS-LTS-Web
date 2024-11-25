@@ -72,7 +72,7 @@ const MapWithGeofencing: React.FC = () => {
   const [formData, setFormData] = useState<Record<string, any>>({});
 
   useEffect(() => {
-    const socket = io("http://localhost:7000");
+    const socket = io("http://localhost:1000");
 
     socket.on(
       "locationUpdate",

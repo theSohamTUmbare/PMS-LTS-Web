@@ -17,6 +17,7 @@ import CellAssign from "./pages/CellAssign";
 import { UserContext } from "./utils/AuthMiddleware";
 import PrisonerDetails from "./pages/PrisonerDetails";
 import MapWithGeofencing from "./pages/Test";
+import AlertTable from "./pages/alertPage";
 
 function App() {
   const [user, setUser] = useState<string | null>(null);
@@ -75,6 +76,16 @@ function App() {
               <AuthMiddleware>
                 <Layout>
                   <Map />
+                </Layout>
+              </AuthMiddleware>
+            }
+          />
+          <Route
+            path="/allAlerts"
+            element={
+              <AuthMiddleware>
+                <Layout>
+                  <AlertTable />
                 </Layout>
               </AuthMiddleware>
             }
