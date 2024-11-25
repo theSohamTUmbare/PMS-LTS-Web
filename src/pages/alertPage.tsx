@@ -10,6 +10,15 @@ const AlertTable: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+  const formatDateTime = (isoString: string | number | Date) => {
+    const date = new Date(isoString);
+    return new Intl.DateTimeFormat("en-US", {
+      dateStyle: "medium", // Displays month, day, and year (e.g., Nov 25, 2024)
+      timeStyle: "short",  // Displays hours and minutes (e.g., 7:04 AM)
+    }).format(date);
+  };
+  
+  
   useEffect(() => {
     const fetchAlerts = async () => {
       try {
@@ -25,6 +34,8 @@ const AlertTable: React.FC = () => {
               ? AlertType.Warning
               : AlertType.Informational,
           message: alert.details,
+          time: formatDateTime(alert.timestamp),
+          device: alert.device_id
         }));
         setAlertData(alerts);
       } catch (err) {
