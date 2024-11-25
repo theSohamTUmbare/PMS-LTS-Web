@@ -21,7 +21,7 @@ const Map: React.FC = () => {
 
   useEffect(() => {
     // Initialize socket connection
-    const socket = io("http://localhost:7000");
+    const socket = io("http://localhost:1000");
 
     // Listen for location updates
     socket.on("locationUpdate", (updatedLocations: { [id: string]: Location }) => {

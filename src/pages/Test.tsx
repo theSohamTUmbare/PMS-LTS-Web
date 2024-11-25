@@ -34,7 +34,7 @@ const MapWithGeofencing: React.FC = () => {
   const [geofences, setGeofences] = useState<Geofence[]>([]);
 
   useEffect(() => {
-    const socket = io("http://localhost:7000");
+    const socket = io("http://localhost:1000");
 
     socket.on(
       "locationUpdate",
