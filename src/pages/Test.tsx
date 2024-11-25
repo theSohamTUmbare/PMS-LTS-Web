@@ -11,7 +11,7 @@ import L, { LatLng } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
 import { io } from "socket.io-client";
-import { v4 as uuidv4 } from "uuid";
+// import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
 
 interface Location {
@@ -157,7 +157,7 @@ const MapWithGeofencing: React.FC = () => {
         shape: 'Rectangle',
         type: 'Positive',
         alert_type: 'Warning',
-        coordinates: (layer.getLatLngs() as LatLng[]).map(({ lat, lng }: LatLng) => ({ lat, lng }));
+        coordinates: (layer.getLatLngs() as LatLng[]).map(({ lat, lng }: LatLng) => ({ lat, lng }))
       };
       setCurrentGeofence(geofence);
       
@@ -170,7 +170,7 @@ const MapWithGeofencing: React.FC = () => {
         shape: 'Rectangle',
         type: 'Positive',
         alert_type: 'Warning',
-        coordinates: (layer.getLatLngs() as LatLng[]).map(({ lat, lng }: LatLng) => ({ lat, lng }));
+        coordinates: (layer.getLatLngs() as LatLng[]).map(({ lat, lng }: LatLng) => ({ lat, lng }))
       };
       setCurrentGeofence(geofence);
 

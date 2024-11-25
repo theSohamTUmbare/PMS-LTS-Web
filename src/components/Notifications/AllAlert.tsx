@@ -56,7 +56,7 @@ const AllAlertData: React.FC<AlertProps> = ({
     
     <div
       key={index}
-      className={`relative border border-gray-300 bg-gray-50 shadow-md rounded-lg px-4 py-3 flex items-center space-x-4 ${borderColor} border-l-4 border-r-0 border-t-0 border-b-0 overflow-hidden group`}
+      className={`relative border border-gray-300 bg-gray-50 shadow-md rounded-md px-4 py-3 flex items-center space-x-4 ${borderColor} border-l-4 border-r-0 border-t-0 border-b-0 overflow-hidden group`}
     >
       
       <div
@@ -99,7 +99,7 @@ const AllAlert = ({ alerts }: AlertsWrapperProps) => {
   return (
     <div className="max-w-7xl mx-auto">
       {/* Alerts Header */}
-      <div className="flex items-center justify-between mb-4 bg-gray-800 text-white rounded-t-lg border-b-0 p-4 shadow-lg">
+      <div className="flex items-center justify-between mb-4 bg-gray-800 text-white rounded-t-[20px] rounded-b-md p-4 shadow-lg">
         <div>
           <h1 className="text-2xl pl-3 font-bold text-white">Alerts</h1>
           <p className="text-sm pl-3 text-gray-300">{alerts.length} total alerts</p>
