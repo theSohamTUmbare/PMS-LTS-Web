@@ -28,7 +28,7 @@ const PoliceTable: React.FC = () => {
             setTotalPages(response.data.totalPages);
             setErrorMessage(null);
         } catch (error) {
-            console.error("Failed to fetch police", error);
+            console.error("Failed to fetch police", error)                                   ;
             setErrorMessage("Failed to fetch police data.");
         }
     };

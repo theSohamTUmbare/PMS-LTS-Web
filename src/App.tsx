@@ -16,6 +16,7 @@ import AuthMiddleware from "./utils/AuthMiddleware";
 import CellAssign from "./pages/CellAssign";
 import { UserContext } from "./utils/AuthMiddleware";
 import PrisonerDetails from "./pages/PrisonerDetails";
+import MapWithGeofencing from "./pages/Test";
 
 function App() {
   const [user, setUser] = useState<string | null>(null);
@@ -74,6 +75,16 @@ function App() {
               <AuthMiddleware>
                 <Layout>
                   <Map />
+                </Layout>
+              </AuthMiddleware>
+            }
+          />
+          <Route
+            path="/communication"
+            element={
+              <AuthMiddleware>
+                <Layout>
+                  <MapWithGeofencing />
                 </Layout>
               </AuthMiddleware>
             }
