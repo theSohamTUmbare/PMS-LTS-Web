@@ -13,6 +13,11 @@ export interface AlertProps {
   message: string;
 }
 
+export interface ApiAlert {
+  alert_type: "Critical" | "Warning" | "Informational";
+  details: string;
+}
+
 const AlertData: React.FC<AlertProps> = ({ index, type, message }) => {
   const icon = type === AlertType.Critical ? faTriangleExclamation :
                type === AlertType.Warning ? faCircleExclamation :
@@ -46,7 +51,7 @@ export interface AlertsWrapperProps {
   alerts: AlertProps[];
 }
 
-const   Alert = ({ alerts }: AlertsWrapperProps) => {
+const Alert = ({ alerts }: AlertsWrapperProps) => {
   return (
     <div className="space-y-3">
       {alerts.map((alert, index) => (

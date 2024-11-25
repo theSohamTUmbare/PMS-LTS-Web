@@ -9,7 +9,18 @@ export default {
       fontFamily: {
         sans: ["Roboto", "sans-serif"],
       },
+      transitionProperty: {
+        'transform': 'transform',
+      },
+    },
+  },
+  variants: {
+    extend: {
+      transform: ['hover'],
+      transitionProperty: ['hover'],
     },
   },
   plugins: [],
 }
+
+

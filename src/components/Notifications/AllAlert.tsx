@@ -11,12 +11,17 @@ export enum AlertType {
   Critical = "critical",
 }
 
+
+export interface ApiAlert {
+  alert_type: "Critical" | "Warning" | "Informational";
+  details: string;
+}
 export interface AlertProps {
   index: number;
   type: AlertType;
   message: string;
   time: Date;
-  device: string;
+  prisoner_name: string;
 }
 
 const AllAlertData: React.FC<AlertProps> = ({
@@ -24,7 +29,7 @@ const AllAlertData: React.FC<AlertProps> = ({
   type,
   message,
   time,
-  device,
+  prisoner_name,
 }) => {
   const icon =
     type === AlertType.Critical
@@ -48,37 +53,36 @@ const AllAlertData: React.FC<AlertProps> = ({
       : "border-blue-600";
 
   return (
-    <div className="border border-gray-300 bg-gray-50 shadow-lg p-3 pb-0 rounded-2xl max-w-full">
+    
+    <div
+      key={index}
+      className={`relative border border-gray-300 bg-gray-50 shadow-md rounded-lg px-4 py-3 flex items-center space-x-4 ${borderColor} border-l-4 border-r-0 border-t-0 border-b-0 overflow-hidden group`}
+    >
+      
       <div
-        key={index}
-        className={`px-6 py-4 border-l-8 ${borderColor} bg-gray-50 mb-0`}
-        style={{ minHeight: "80px" }} // Adjust height as needed
-      >
-        <div className="flex flex-row justify-between items-center gap-x-6">
-          {/* Icon */}
-          <FontAwesomeIcon
-            className={`${iconColor} text-3xl`} // Larger icon
-            icon={icon}
-          />
+        className={`absolute inset-0 bg-gradient-to-r from-transparent ${borderColor.replace(
+          "border-",
+          "to-"
+        )} transform -translate-x-full transition-transform duration-500 ease-in-out group-hover:translate-x-0`}
+      ></div>
 
-          {/* Main Content */}
-          <div className="flex flex-col flex-grow">
-            
-            <div className="font-bold text-xl text-gray-800">
-              {type.toUpperCase()}
-            </div>
-            
-            
-            <p className="text-base text-gray-600 mt-2">{message}</p>
-          </div>
-
-          
-        </div>
-
+      <div className="flex-shrink-0 relative z-10">
+        <FontAwesomeIcon
+          className={`${iconColor} text-3xl`} // Larger icon
+          icon={icon}
+        />
       </div>
-      <div className="text-sm text-gray-500 mt-2">{time}</div>
-        {/* Device */}
-        <div className="text-sm text-gray-500 text-right mb-2">{device}</div>
+
+
+      <div className="flex-grow relative z-10">
+        <div className="text-base font-semibold text-gray-800">{message}</div>
+        <div className="text-sm text-gray-500">Prisoner: {prisoner_name}</div>
+      </div>
+
+      <div className="flex-shrink-0 text-right relative z-10">
+        <div className="text-sm text-gray-600">{time.split(",")[0] + time.split(",")[1]}</div>
+        <div className="text-[13px] text-gray-500">{time.split(",")[2]}</div>
+      </div>
     </div>
   );
 };
@@ -88,18 +92,48 @@ export interface AlertsWrapperProps {
 }
 
 const AllAlert = ({ alerts }: AlertsWrapperProps) => {
+  const criticalCount = alerts.filter((alert) => alert.type === AlertType.Critical).length;
+  const warningCount = alerts.filter((alert) => alert.type === AlertType.Warning).length;
+  const informationalCount = alerts.filter((alert) => alert.type === AlertType.Informational).length;
+
   return (
-    <div className="space-y-3">
-      {alerts.map((alert, index) => (
-        <AllAlertData
-          key={index}
-          index={index}
-          type={alert.type}
-          message={alert.message}
-          time={alert.time}
-          device={alert.device}
-        />
-      ))}
+    <div className="max-w-7xl mx-auto">
+      {/* Alerts Header */}
+      <div className="flex items-center justify-between mb-4 bg-gray-800 text-white rounded-t-lg border-b-0 p-4 shadow-lg">
+        <div>
+          <h1 className="text-2xl pl-3 font-bold text-white">Alerts</h1>
+          <p className="text-sm pl-3 text-gray-300">{alerts.length} total alerts</p>
+        </div>
+        <div className="flex gap-5 text-[14px] mr-5">
+          {/* Counts for each alert type */}
+          <div className="flex items-center gap-1 text-red-400">
+            <FontAwesomeIcon icon={faTriangleExclamation} className="text-red-500" />
+            <span className="pt-[1px]">{criticalCount} Critical</span>
+          </div>
+          <div className="flex items-center gap-1 text-yellow-400">
+            <FontAwesomeIcon icon={faCircleExclamation} className="text-yellow-500" />
+            <span className="pt-[1px]">{warningCount} Warnings</span>
+          </div>
+          <div className="flex items-center gap-1 text-blue-400">
+            <FontAwesomeIcon icon={faInfoCircle} className="text-blue-500" />
+            <span className="pt-[1px]">{informationalCount} Informational</span>
+          </div>
+        </div>
+      </div>
+
+        {/* Alerts List */}
+      <div className="space-y-3">
+        {alerts.map((alert, index) => (
+          <AllAlertData
+            key={index}
+            index={index}
+            type={alert.type}
+            message={alert.message}
+            time={alert.time}
+            prisoner_name={alert.prisoner_name}
+          />
+        ))}
+      </div>
     </div>
   );
 };
