@@ -4,7 +4,10 @@ import Alert, { AlertProps } from "../components/Notifications/Alert";
 import axios from "axios";
 
 // Initialize Socket.io
-const socket = io("http://localhost:7000");
+const socket = io("http://localhost:1000");
+
+const capitalizeFirstLetter = (str: string) =>
+  str.charAt(0).toUpperCase() + str.slice(1);
 
 const NotificationContainer: React.FC = () => {
   const [notifications, setNotifications] = useState<AlertProps[]>([]);
@@ -12,7 +15,37 @@ const NotificationContainer: React.FC = () => {
 
   // Listen for notifications from the server
   useEffect(() => {
-    socket.on("showAlert", (notification: AlertProps) => {
+    socket.on("showAlert", async (notification: AlertProps) => {
+      // Format the notification
+      const formattedNotification = {
+        ...notification,
+        alert_type: capitalizeFirstLetter(notification.alert_type), // Capitalize alert_type
+      };
+
+      // Manually create timestamp and date
+      const currentDate = new Date();
+      const formattedDate = currentDate.toISOString().split("T")[0]; // YYYY-MM-DD
+      const formattedTimestamp = currentDate
+        .toISOString()
+        .replace("T", " ") // Replace 'T' with space
+        .split(".")[0];    // Remove milliseconds for 'YYYY-MM-DD HH:mm:ss'
+
+      // Prepare alert payload for posting
+      const alertPayload = {
+        device_id: formattedNotification.index, // Assuming `index` is the device_id
+        alert_type: formattedNotification.alert_type,
+        date: formattedDate,
+        timestamp: formattedTimestamp,
+        details: formattedNotification.message,
+      };
+
+      try {
+        // Post the alert to the backend
+        await axios.post("/api/v1/alert/all", alertPayload);
+        console.log("Alert successfully posted");
+      } catch (error) {
+        console.error("Error posting alert:", error);
+      }
 
       console.log("Notification received");
       setNotifications((prev) => {
