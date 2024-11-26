@@ -13,7 +13,7 @@ const NotificationContainer: React.FC = () => {
   // Listen for notifications from the server
   useEffect(() => {
     socket.on("showAlert", (notification: AlertProps) => {
-        
+
       console.log("Notification received");
       setNotifications((prev) => {
         if (!prev.some((notif) => notif === notification)) {
@@ -25,7 +25,6 @@ const NotificationContainer: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    // If there are notifications, set the current notification
     if (notifications.length > 0 && !currentNotification) {
       setCurrentNotification(notifications[0]); // Set the first notification as current
     }
