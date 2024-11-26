@@ -23,7 +23,18 @@ export default {
         "slide-in": "slide-in 0.5s forwards",
         "slide-out": "slide-out 0.5s 2.5s forwards",
       },
+      transitionProperty: {
+        'transform': 'transform',
+      },
+    },
+  },
+  variants: {
+    extend: {
+      transform: ['hover'],
+      transitionProperty: ['hover'],
     },
   },
   plugins: [],
 }
+
+

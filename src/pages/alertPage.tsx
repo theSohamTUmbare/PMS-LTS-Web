@@ -24,7 +24,7 @@ const AlertTable: React.FC = () => {
       try {
         setLoading(true);
         setError(null);
-        const response = await axios.get("/api/v1/alert/all");
+        const response = await axios.get("/api/v1/alert/prisoneralerts");
         const alerts = response.data.data.map((alert: any, index: number) => ({
           index,
           type:
@@ -35,7 +35,7 @@ const AlertTable: React.FC = () => {
               : AlertType.Informational,
           message: alert.details,
           time: formatDateTime(alert.timestamp),
-          device: alert.device_id
+          prisoner_name: alert.first_name + " " + alert.last_name
         }));
         setAlertData(alerts);
       } catch (err) {

@@ -56,7 +56,7 @@ const Header: React.FC = () => {
           <Link to="/location-history" className="hover:text-blue-400">
             Location History
           </Link>
-          <Link to="/alerts" className="block hover:text-blue-400">
+          <Link to="/allAlerts" className="block hover:text-blue-400">
             Alerts and Notifications
           </Link>
         </div>
