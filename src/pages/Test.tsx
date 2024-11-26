@@ -1,19 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
-import {
-  MapContainer,
-  TileLayer,
-  Marker,
-  FeatureGroup,
-  useMap,
-} from "react-leaflet";
-import { EditControl } from "react-leaflet-draw";
-import L, { LatLng } from "leaflet";
+import { MapContainer, TileLayer, useMap } from "react-leaflet";
+import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import "leaflet-draw/dist/leaflet.draw.css";
-import { AlertType } from "../components/Notifications/Alert";
 import { io } from "socket.io-client";
-import { v4 as uuidv4 } from "uuid";
-import axios from "axios";
 
 interface Location {
   id: string;
@@ -22,87 +11,42 @@ interface Location {
   latitude: number;
   longitude: number;
   timestamp: number;
+  // accuracy: number;
 }
 
-export interface GeofenceCircle {
-  geofence_id: string;
-  name?: string;
-  shape: 'Circle';
-  alert_type?: "Informational" | "Warning" | "Critical";
-  type?: "Positive" | "Negative";
-  radius: number;
-  center_lat: number;
-  center_lng: number;
-}
-
-export interface GeofencePolygon {
-  geofence_id: string;
-  name?: string;
-  shape: 'Polygon';
-  alert_type?: "Informational" | "Warning" | "Critical";
-  type?: "Positive" | "Negative";
-  coordinates: { lat: number; lng: number }[];
-}
-
-export interface GeofenceRectangle {
-  geofence_id: string;
-  name?: string;
-  shape: 'Rectangle';
-  alert_type?: "Informational" | "Warning" | "Critical";
-  type?: "Positive" | "Negative";
-  coordinates: { lat: number; lng: number }[];
-}
-
-export type Geofence = GeofenceCircle | GeofencePolygon | GeofenceRectangle;
-
-// interface Geofence {
-//   id: string;
-//   shape: L.Circle | L.Polygon | L.Rectangle;
-// }
-
-const MapWithGeofencing: React.FC = () => {
+const Test: React.FC = () => {
   const mapRef = useRef<L.Map | null>(null);
   const markersRef = useRef<{ [trackingId: string]: L.Marker }>({});
-  const featureGroupRef = useRef<L.FeatureGroup>(new L.FeatureGroup());
   const [locations, setLocations] = useState<Location[]>([]);
-  const [geofences, setGeofences] = useState<Geofence[]>([]);
-  const [currentGeofence, setCurrentGeofence] = useState<GeofenceCircle | GeofenceRectangle | GeofencePolygon | null>(null);
-  const [showForm, setShowForm] = useState<boolean>(false);
-  const [formData, setFormData] = useState<Record<string, any>>({});
-
-  const prevLocationsRef = useRef<Location[]>([]);
 
   useEffect(() => {
-    prevLocationsRef.current = locations;
-  }, [locations]);
-
-  const prevLocations = prevLocationsRef.current;
-
-  useEffect(() => {
+    // Initialize socket connection
     const socket = io("http://localhost:7000");
 
-    socket.on(
-      "locationUpdate",
-      (updatedLocations: { [id: string]: Location }) => {
-        setLocations(Object.values(updatedLocations));
-      }
-    );
+    // Listen for location updates
+    socket.on("locationUpdate", (updatedLocations: { [id: string]: Location }) => {
+      setLocations(Object.values(updatedLocations));
+    });
 
+    // Listen for user disconnection
     socket.on("userDisconnected", (id: string) => {
+      // Remove marker from map and delete from markersRef
       if (markersRef.current[id]) {
         mapRef.current?.removeLayer(markersRef.current[id]);
         delete markersRef.current[id];
       }
     });
 
+    // Clean up the socket connection on component unmount
     return () => {
       socket.disconnect();
     };
   }, []);
 
+  // Function to smoothly animate marker movement
   const smoothMarkerMovement = (marker: L.Marker, newLatLng: L.LatLng) => {
     const startLatLng = marker.getLatLng();
-    const duration = 1000;
+    const duration = 1000; // Transition duration in ms
     let start: number | null = null;
 
     const latDelta = (newLatLng.lat - startLatLng.lat) / duration;
@@ -124,149 +68,24 @@ const MapWithGeofencing: React.FC = () => {
     requestAnimationFrame(animate);
   };
 
-  const checkMarkerInGeofence = (marker: Location, geofence: Geofence): boolean => {
-  const { latitude, longitude } = marker;
-  const markerLatLng = new L.LatLng(latitude, longitude);
-
-  if (geofence.shape === "Circle") {
-    // Check if the marker is within the circle's radius
-    const circleCenter = new L.LatLng(geofence.center_lat, geofence.center_lng);
-    const distance = markerLatLng.distanceTo(circleCenter);
-    return distance <= geofence.radius;
-  } else if (geofence.shape === "Polygon" || geofence.shape === "Rectangle") {
-    // Check if the marker is within the polygon/rectangle
-    const latLngs = geofence.coordinates.map(coord => new L.LatLng(coord.lat, coord.lng));
-    const polygon = L.polygon(latLngs);
-    return polygon.getBounds().contains(markerLatLng);
-  }
-
-  return false;
-};
-
-
-  const onCreated = (e: L.DrawEvents.Created) => {
-    const layer = e.layer;
-    const geofenceId = uuidv4();
-    layer.options.geofenceId = geofenceId;
-    console.log(layer.options.geofenceId);
-    if (layer instanceof L.Circle) {
-      setShowForm(true);
-      const geofence: GeofenceCircle = {
-        geofence_id: geofenceId,
-        shape: 'Circle',
-        radius: layer.getRadius(),
-        center_lat: layer.getLatLng().lat,
-        center_lng: layer.getLatLng().lng,
-        type: 'Positive',
-        alert_type: 'Informational',
-      };
-      setCurrentGeofence(geofence);
-    }
-    else if (layer instanceof L.Rectangle) {
-      setShowForm(true);
-      console.log(layer.getLatLngs());
-      const geofence: GeofenceRectangle = {
-        geofence_id: geofenceId,
-        shape: 'Rectangle',
-        type: 'Positive',
-        alert_type: 'Informational',
-        coordinates: (layer.getLatLngs() as LatLng[] | LatLng[][]).flatMap((latLng: LatLng | LatLng[]) =>
-          Array.isArray(latLng)
-            ? latLng.map(({ lat, lng }: LatLng) => ({ lat, lng }))
-            : [{ lat: (latLng as LatLng).lat, lng: (latLng as LatLng).lng }]
-        )
-      };
-      console.log(geofence.coordinates);
-      setCurrentGeofence(geofence);
-      
-    }
-    else if(layer instanceof L.Polygon){
-      setShowForm(true);
-      const geofence: GeofencePolygon = {
-        geofence_id: geofenceId,
-        shape: 'Polygon',
-        type: 'Positive',
-        alert_type: 'Informational',
-        coordinates: (layer.getLatLngs() as LatLng[] | LatLng[][]).flatMap((latLng: LatLng | LatLng[]) =>
-          Array.isArray(latLng)
-            ? latLng.map(({ lat, lng }: LatLng) => ({ lat, lng }))
-            : [{ lat: (latLng as LatLng).lat, lng: (latLng as LatLng).lng }]
-        )
-      };
-      setCurrentGeofence(geofence);
-
-    }
-
-    if (layer instanceof L.Circle) {
-      console.log("Circle Geofence:", layer.getLatLng(), layer.getRadius());
-    } else if (layer instanceof L.Polygon || layer instanceof L.Rectangle) {
-      console.log("Polygon/Rectangle Geofence:", layer.getLatLngs());
-    }
-  };
-
-  const onDeleted = (e: L.DrawEvents.Deleted) => {
-    const layers = e.layers;
-    const deletedIds: string[] = [];
-  
-    // Collect the IDs of the deleted layers
-    layers.eachLayer((layer) => {
-      if ('geofenceId' in layer.options) {
-        deletedIds.push(layer.options.geofenceId as string);
-      }
-    });
-
-    // console.log(deletedIds);
-  
-    // Remove the geofences with matching IDs
-    setGeofences((prev) =>
-      prev.filter((geofence) => !deletedIds.includes(geofence.geofence_id))
-    );
-  
-    console.log("Deleted geofences:", deletedIds);
-  };
-  
-
-  useEffect(() => {
-    const socket = io("http://localhost:7000");
-    locations.forEach((location, index) => {
-      geofences.forEach((geofence) => {
-        const isInGeofence = checkMarkerInGeofence(location, geofence);
-        const prevIsInGeofence = checkMarkerInGeofence(prevLocations[index], geofence);
-        const alertType = geofence.alert_type === 'Critical' ? AlertType.Critical : geofence.alert_type === 'Warning' ? AlertType.Warning : AlertType.Informational;
-        // console.log(geofence);
-        // console.log(isInGeofence);
-        if (!prevIsInGeofence && isInGeofence && geofence.type === 'Positive') {
-          console.log(
-            `Marker ${location.id} entered geofence ${geofence.geofence_id}`
-          );
-          socket.emit('newAlert', {device_id: location.trackingId, alert_type: alertType, message: `${location.name} Entered the ${geofence.name} Geofence`});
-        } else if(prevIsInGeofence && !isInGeofence && geofence.type === 'Negative') {
-          console.log(
-            `Marker ${location.id} exited geofence ${geofence.geofence_id}`
-          );
-          socket.emit('newAlert', {device_id: location.id, alert_type: alertType, message: `${location.name} Exited the ${geofence.name} Geofence`});
-        }
-      });
-    });
-  }, [locations, geofences]);
-
+  // Update markers on the map when locations change
   useEffect(() => {
     if (!mapRef.current) return;
     const map = mapRef.current;
 
-    // console.log(geofences);
-
+    // Loop through location data to update or create markers
     locations.forEach((location) => {
-      const { id, name, trackingId, latitude, longitude } = location;
+      const { id, name, trackingId,latitude, longitude } = location;
       const newLatLng = new L.LatLng(latitude, longitude);
 
+      // If marker already exists, update its position smoothly
       if (markersRef.current[id]) {
         smoothMarkerMovement(markersRef.current[id], newLatLng);
       } else {
+        // Create a new marker if it doesn't exist
         const marker = L.marker(newLatLng, {
           icon: L.icon({
-            iconUrl:
-              "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png",
+            iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
             iconSize: [25, 41],
             iconAnchor: [12, 41],
             popupAnchor: [1, -34],
@@ -276,10 +95,12 @@ const MapWithGeofencing: React.FC = () => {
           .addTo(map)
           .bindPopup(`Name: ${name}`);
 
+        // Store marker reference
         markersRef.current[id] = marker;
       }
     });
 
+    // Remove any markers that are no longer in locations
     Object.keys(markersRef.current).forEach((id) => {
       if (!locations.find((loc) => loc.id === id)) {
         map.removeLayer(markersRef.current[id]);
@@ -294,42 +115,6 @@ const MapWithGeofencing: React.FC = () => {
     return null;
   };
 
-  const handleChange = (e: any) => {
-    const { name, value } = e.target;
-    setFormData((prevData: any) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
-
-  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    if (currentGeofence) {
-      const updatedGeofence: typeof currentGeofence = {
-        ...currentGeofence,
-        ...formData,
-      };
-      
-      console.log(updatedGeofence);
-
-      try {
-        const response = await axios.post("/api/v1/geofence/add", updatedGeofence);
-        console.log("Geofence saved:", response.data);
-        setGeofences((prev) => [...prev, updatedGeofence]);
-
-        console.log(`Geofences\n ${geofences}`)
-
-        setShowForm(false);
-        setFormData({});
-        setCurrentGeofence(null);
-
-      } catch (error) {
-        console.error("Error saving geofence:", error);
-      }
-    }
-  };
-
   return (
     <div className="relative">
       <MapContainer
@@ -342,116 +127,10 @@ const MapWithGeofencing: React.FC = () => {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         />
-
-        {/* FeatureGroup for managing geofences */}
-        <FeatureGroup>
-          <EditControl
-            position="topright"
-            onCreated={onCreated}
-            onDeleted={onDeleted}
-            draw={{
-              rectangle: { showArea: false },
-              polygon: true,
-              circle: true,
-              polyline: false,
-              marker: false,
-              circlemarker: false,
-            }}
-          />
-        </FeatureGroup>
-        <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        />
-        {/* Render markers
-        {locations.map((location) => (
-          <Marker key={location.id} position={[location.latitude, location.longitude]} />
-        ))} */}
-
         <SetMapRef />
       </MapContainer>
-      {showForm && (<div>
-      {/* Overlay */}
-      <div className="fixed inset-0 bg-gray-800 bg-opacity-50 z-10"></div>
-
-      {/* Form */}
-      <div
-        style={{ zIndex: 1000 }}
-        className="fixed inset-0 flex items-center justify-center"
-      >
-        <form
-          onSubmit={handleFormSubmit}
-          className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md"
-        >
-          <h3 className="text-lg font-semibold mb-4 text-gray-800">
-            Enter Geofence Details
-          </h3>
-
-          {/* Geofence Name */}
-          <label className="block mb-2 text-sm font-medium text-gray-700">
-            Geofence Name:
-            <input
-              type="text"
-              name="name"
-              value={formData.name ?? ''}
-              onChange={handleChange}
-              className="w-full mt-1 p-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-blue-300"
-              required
-            />
-          </label>
-
-          {/* Geofence Type */}
-          <label className="block mb-4 text-sm font-medium text-gray-700">
-            Geofence Type:
-            <select
-              name="type"
-              value={formData.type ?? 'Positive'}
-              onChange={handleChange}
-              className="w-full mt-1 p-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-blue-300"
-              required
-            >
-              <option value="Positive">Positive</option>
-              <option value="Negative">Negative</option>
-            </select>
-          </label>
-
-          {/* Alert Type */}
-          <label className="block mb-4 text-sm font-medium text-gray-700">
-            Alert Type:
-            <select
-              name="alert_type"
-              value={formData.alert_type ?? "Informational"}
-              onChange={handleChange}
-              className="w-full mt-1 p-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-blue-300"
-            >
-              <option value="Informational">Informational</option>
-              <option value="Warning">Warning</option>
-              <option value="Critical">Critical</option>
-            </select>
-          </label>
-
-          {/* Buttons */}
-          <div className="flex justify-end gap-4">
-            <button
-              type="button"
-              onClick={() => setShowForm(false)}
-              className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            >
-              Save Geofence
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-      )}
     </div>
   );
 };
 
-export default MapWithGeofencing;
+export default Test;

@@ -59,7 +59,7 @@ const Home: React.FC = () => {
         );
         const alerts = response.data.data.map((alert: any, index: number) => ({
           index,
-          type:
+          alert_type:
             alert.alert_type === "Critical"
               ? AlertType.Critical
               : alert.alert_type === "Warning"

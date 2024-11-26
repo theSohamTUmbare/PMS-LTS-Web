@@ -51,6 +51,7 @@ export interface AlertsWrapperProps {
 }
 
 const  Alert: React.FC<AlertsWrapperProps> = ({ alerts }) => {
+  console.log(alerts)
   return (
     <div className="space-y-3">
       {alerts.map((alert, index) => (
