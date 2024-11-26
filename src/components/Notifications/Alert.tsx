@@ -9,22 +9,26 @@ export enum AlertType {
 
 export interface AlertProps {
   index: number;
-  type: AlertType;
+  alert_type: AlertType;
   message: string;
 }
 
-const AlertData: React.FC<AlertProps> = ({ index, type, message }) => {
-  const icon = type === AlertType.Critical ? faTriangleExclamation :
-               type === AlertType.Warning ? faCircleExclamation :
+const AlertData: React.FC<AlertProps> = ({ index, alert_type, message }) => {
+  const icon = alert_type === AlertType.Critical ? faTriangleExclamation :
+               alert_type === AlertType.Warning ? faCircleExclamation :
                faInfoCircle;
 
-  const iconColor = type === AlertType.Critical ? "text-red-600" :
-                    type === AlertType.Warning ? "text-yellow-600" :
+  const iconColor = alert_type === AlertType.Critical ? "text-red-600" :
+                    alert_type === AlertType.Warning ? "text-yellow-600" :
                     "text-blue-600";
 
-  const borderColor = type === AlertType.Critical ? "border-red-600" :
-                      type === AlertType.Warning ? "border-yellow-600" :
+  const borderColor = alert_type === AlertType.Critical ? "border-red-600" :
+                      alert_type === AlertType.Warning ? "border-yellow-600" :
                       "border-blue-600";
+
+  const label = alert_type === AlertType.Critical ? "CRITICAL" :
+                      alert_type === AlertType.Warning ? "WARNING" :
+                      "INFORMATIONAL";
 
   return (
     <div key={index} className={`px-4 py-2 border-l-4 ${borderColor} bg-gray-50 text-sm mb-3 shadow`}>
@@ -34,7 +38,7 @@ const AlertData: React.FC<AlertProps> = ({ index, type, message }) => {
           icon={icon}
         />
         <div className="flex flex-col items-start">
-          <div className="justify-center font-bold">{type.toUpperCase()}</div>
+          <div className="justify-center font-bold">{label}</div>
           <p>{message}</p>
         </div>
       </div>
@@ -46,11 +50,11 @@ export interface AlertsWrapperProps {
   alerts: AlertProps[];
 }
 
-const   Alert = ({ alerts }: AlertsWrapperProps) => {
+const  Alert: React.FC<AlertsWrapperProps> = ({ alerts }) => {
   return (
     <div className="space-y-3">
       {alerts.map((alert, index) => (
-        <AlertData key={index} index={index} type={alert.type} message={alert.message} />
+        <AlertData key={index} index={index} alert_type={alert.alert_type} message={alert.message} />
       ))}
     </div>
   );

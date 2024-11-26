@@ -18,6 +18,7 @@ import { UserContext } from "./utils/AuthMiddleware";
 import PrisonerDetails from "./pages/PrisonerDetails";
 import MapWithGeofencing from "./pages/Test";
 import AlertTable from "./pages/alertPage";
+import NotificationContainer from "./utils/NotificationContainer";
 
 function App() {
   const [user, setUser] = useState<string | null>(null);

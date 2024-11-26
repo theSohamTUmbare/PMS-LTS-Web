@@ -1,6 +1,7 @@
 import Header from "../components/Header";
 // import Hero from "../components/Hero";
 import Footer from "../components/Footer";
+import NotificationContainer from "../utils/NotificationContainer";
 
 interface Props {
     children: React.ReactNode;
@@ -15,6 +16,7 @@ const Layout = ({children} : Props) => {
                 {children}
             </div> 
             <Footer />
+            <NotificationContainer/>
         </div>
     )
 }

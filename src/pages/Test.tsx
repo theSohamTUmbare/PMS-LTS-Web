@@ -10,6 +10,7 @@ import { EditControl } from "react-leaflet-draw";
 import L, { LatLng } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
+import { AlertType } from "../components/Notifications/Alert";
 import { io } from "socket.io-client";
 import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
@@ -26,7 +27,6 @@ interface Location {
 export interface GeofenceCircle {
   geofence_id: string;
   name?: string;
-  layer?: L.Circle;
   shape: 'Circle';
   alert_type?: "Informational" | "Warning" | "Critical";
   type?: "Positive" | "Negative";
@@ -38,7 +38,6 @@ export interface GeofenceCircle {
 export interface GeofencePolygon {
   geofence_id: string;
   name?: string;
-  layer?: L.Polygon;
   shape: 'Polygon';
   alert_type?: "Informational" | "Warning" | "Critical";
   type?: "Positive" | "Negative";
@@ -48,7 +47,6 @@ export interface GeofencePolygon {
 export interface GeofenceRectangle {
   geofence_id: string;
   name?: string;
-  layer?: L.Rectangle;
   shape: 'Rectangle';
   alert_type?: "Informational" | "Warning" | "Critical";
   type?: "Positive" | "Negative";
@@ -56,6 +54,7 @@ export interface GeofenceRectangle {
 }
 
 export type Geofence = GeofenceCircle | GeofencePolygon | GeofenceRectangle;
+
 // interface Geofence {
 //   id: string;
 //   shape: L.Circle | L.Polygon | L.Rectangle;
@@ -71,8 +70,16 @@ const MapWithGeofencing: React.FC = () => {
   const [showForm, setShowForm] = useState<boolean>(false);
   const [formData, setFormData] = useState<Record<string, any>>({});
 
+  const prevLocationsRef = useRef<Location[]>([]);
+
   useEffect(() => {
-    const socket = io("http://localhost:1000");
+    prevLocationsRef.current = locations;
+  }, [locations]);
+
+  const prevLocations = prevLocationsRef.current;
+
+  useEffect(() => {
+    const socket = io("http://localhost:7000");
 
     socket.on(
       "locationUpdate",
@@ -117,60 +124,74 @@ const MapWithGeofencing: React.FC = () => {
     requestAnimationFrame(animate);
   };
 
-  const checkMarkerInGeofence = (marker: Location, geofence: Geofence) => {
-    const { latitude, longitude } = marker;
-    const markerLatLng = new L.LatLng(latitude, longitude);
+  const checkMarkerInGeofence = (marker: Location, geofence: Geofence): boolean => {
+  const { latitude, longitude } = marker;
+  const markerLatLng = new L.LatLng(latitude, longitude);
 
-    if (geofence.layer instanceof L.Circle) {
-      return geofence.layer.getBounds().contains(markerLatLng);
-    } else if (
-      geofence.layer instanceof L.Polygon ||
-      geofence.layer instanceof L.Rectangle
-    ) {
-      return geofence.layer.getBounds().contains(markerLatLng);
-    }
-    return false;
-  };
+  if (geofence.shape === "Circle") {
+    // Check if the marker is within the circle's radius
+    const circleCenter = new L.LatLng(geofence.center_lat, geofence.center_lng);
+    const distance = markerLatLng.distanceTo(circleCenter);
+    return distance <= geofence.radius;
+  } else if (geofence.shape === "Polygon" || geofence.shape === "Rectangle") {
+    // Check if the marker is within the polygon/rectangle
+    const latLngs = geofence.coordinates.map(coord => new L.LatLng(coord.lat, coord.lng));
+    const polygon = L.polygon(latLngs);
+    return polygon.getBounds().contains(markerLatLng);
+  }
+
+  return false;
+};
+
 
   const onCreated = (e: L.DrawEvents.Created) => {
     const layer = e.layer;
     const geofenceId = uuidv4();
+    layer.options.geofenceId = geofenceId;
+    console.log(layer.options.geofenceId);
     if (layer instanceof L.Circle) {
       setShowForm(true);
       const geofence: GeofenceCircle = {
         geofence_id: geofenceId,
-        layer: layer,
         shape: 'Circle',
         radius: layer.getRadius(),
         center_lat: layer.getLatLng().lat,
         center_lng: layer.getLatLng().lng,
         type: 'Positive',
-        alert_type: 'Warning',
+        alert_type: 'Informational',
       };
       setCurrentGeofence(geofence);
     }
     else if (layer instanceof L.Rectangle) {
       setShowForm(true);
+      console.log(layer.getLatLngs());
       const geofence: GeofenceRectangle = {
         geofence_id: geofenceId,
-        layer: layer,
         shape: 'Rectangle',
         type: 'Positive',
-        alert_type: 'Warning',
-        coordinates: (layer.getLatLngs() as LatLng[]).map(({ lat, lng }: LatLng) => ({ lat, lng }));
+        alert_type: 'Informational',
+        coordinates: (layer.getLatLngs() as LatLng[] | LatLng[][]).flatMap((latLng: LatLng | LatLng[]) =>
+          Array.isArray(latLng)
+            ? latLng.map(({ lat, lng }: LatLng) => ({ lat, lng }))
+            : [{ lat: (latLng as LatLng).lat, lng: (latLng as LatLng).lng }]
+        )
       };
+      console.log(geofence.coordinates);
       setCurrentGeofence(geofence);
       
     }
-    else if(layer instanceof L.Rectangle){
+    else if(layer instanceof L.Polygon){
       setShowForm(true);
-      const geofence: GeofenceRectangle = {
+      const geofence: GeofencePolygon = {
         geofence_id: geofenceId,
-        layer: layer,
-        shape: 'Rectangle',
+        shape: 'Polygon',
         type: 'Positive',
-        alert_type: 'Warning',
-        coordinates: (layer.getLatLngs() as LatLng[]).map(({ lat, lng }: LatLng) => ({ lat, lng }));
+        alert_type: 'Informational',
+        coordinates: (layer.getLatLngs() as LatLng[] | LatLng[][]).flatMap((latLng: LatLng | LatLng[]) =>
+          Array.isArray(latLng)
+            ? latLng.map(({ lat, lng }: LatLng) => ({ lat, lng }))
+            : [{ lat: (latLng as LatLng).lat, lng: (latLng as LatLng).lng }]
+        )
       };
       setCurrentGeofence(geofence);
 
@@ -185,26 +206,45 @@ const MapWithGeofencing: React.FC = () => {
 
   const onDeleted = (e: L.DrawEvents.Deleted) => {
     const layers = e.layers;
-    const deletedIds = Object.values(layers._layers).map(
-      (layer: any) => layer._leaflet_id
-    );
+    const deletedIds: string[] = [];
+  
+    // Collect the IDs of the deleted layers
+    layers.eachLayer((layer) => {
+      if ('geofenceId' in layer.options) {
+        deletedIds.push(layer.options.geofenceId as string);
+      }
+    });
+
+    // console.log(deletedIds);
+  
+    // Remove the geofences with matching IDs
     setGeofences((prev) =>
       prev.filter((geofence) => !deletedIds.includes(geofence.geofence_id))
     );
+  
+    console.log("Deleted geofences:", deletedIds);
   };
+  
 
   useEffect(() => {
-    locations.forEach((location) => {
+    const socket = io("http://localhost:7000");
+    locations.forEach((location, index) => {
       geofences.forEach((geofence) => {
         const isInGeofence = checkMarkerInGeofence(location, geofence);
-        if (isInGeofence) {
+        const prevIsInGeofence = checkMarkerInGeofence(prevLocations[index], geofence);
+        const alertType = geofence.alert_type === 'Critical' ? AlertType.Critical : geofence.alert_type === 'Warning' ? AlertType.Warning : AlertType.Informational;
+        // console.log(geofence);
+        // console.log(isInGeofence);
+        if (!prevIsInGeofence && isInGeofence && geofence.type === 'Positive') {
           console.log(
             `Marker ${location.id} entered geofence ${geofence.geofence_id}`
           );
-        } else {
+          socket.emit('newAlert', {device_id: location.trackingId, alert_type: alertType, message: `${location.name} Entered the ${geofence.name} Geofence`});
+        } else if(prevIsInGeofence && !isInGeofence && geofence.type === 'Negative') {
           console.log(
             `Marker ${location.id} exited geofence ${geofence.geofence_id}`
           );
+          socket.emit('newAlert', {device_id: location.id, alert_type: alertType, message: `${location.name} Exited the ${geofence.name} Geofence`});
         }
       });
     });
@@ -213,6 +253,8 @@ const MapWithGeofencing: React.FC = () => {
   useEffect(() => {
     if (!mapRef.current) return;
     const map = mapRef.current;
+
+    // console.log(geofences);
 
     locations.forEach((location) => {
       const { id, name, trackingId, latitude, longitude } = location;
@@ -268,12 +310,15 @@ const MapWithGeofencing: React.FC = () => {
         ...currentGeofence,
         ...formData,
       };
+      
+      console.log(updatedGeofence);
 
-      delete updatedGeofence.layer;
       try {
         const response = await axios.post("/api/v1/geofence/add", updatedGeofence);
         console.log("Geofence saved:", response.data);
         setGeofences((prev) => [...prev, updatedGeofence]);
+
+        console.log(`Geofences\n ${geofences}`)
 
         setShowForm(false);
         setFormData({});

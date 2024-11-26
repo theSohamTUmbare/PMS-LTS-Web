@@ -76,7 +76,7 @@ const AllAlertData: React.FC<AlertProps> = ({
         </div>
 
       </div>
-      <div className="text-sm text-gray-500 mt-2">{time}</div>
+      <div className="text-sm text-gray-500 mt-2">{time.toString()}</div>
         {/* Device */}
         <div className="text-sm text-gray-500 text-right mb-2">{device}</div>
     </div>
