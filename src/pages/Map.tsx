@@ -2,12 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   MapContainer,
   TileLayer,
-  Marker,
   FeatureGroup,
-  useMap,
-  Polygon,
-  Circle,
-  Popup
+  useMap
 } from "react-leaflet";
 import { EditControl } from "react-leaflet-draw";
 import L, { LatLng } from "leaflet";
@@ -16,7 +12,6 @@ import "leaflet-draw/dist/leaflet.draw.css";
 import { AlertType } from "../components/Notifications/Alert";
 import { io } from "socket.io-client";
 import { v4 as uuidv4 } from "uuid";
-import icon from '../assets/prisoner_icon.png'
 import axios from "axios";
 
 interface Location {

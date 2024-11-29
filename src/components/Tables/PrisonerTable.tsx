@@ -1,9 +1,24 @@
 import { useState, useEffect } from 'react';
-import { Prisoner } from '../../utils/prisonerApi';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEllipsis } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from "react-router-dom";
+
+export interface Prisoner {
+    prisoner_id: number;
+    first_name: string;
+    last_name: string;
+    date_of_birth: Date;
+    gender: string;
+    national_id: string;
+    entry_date: Date;
+    release_date?: Date;
+    status: 'Incarcerated' | 'Released' | 'On Trial' | 'Transferred';
+    cell_id?: number;
+    behavior_record?: object;
+    medical_history?: object;
+    tracking_device_id?: number;
+}
 
 const PrisonerTable: React.FC = () => {
     const navigate = useNavigate();
@@ -40,7 +55,7 @@ const PrisonerTable: React.FC = () => {
         navigate(`/prisoner-details/${id}`);
     };
 
-    const handleDeletePrisoner = async (prisonerId) => {
+    const handleDeletePrisoner = async (prisonerId: number) => {
         if (window.confirm("Are you sure you want to delete this prisoner?")) {
           try {
             await axios.delete(`/api/v1/prisoner/delete/${prisonerId}`);
