@@ -4,7 +4,7 @@ import Alert, { AlertProps } from "../components/Notifications/Alert";
 import axios from "axios";
 
 // Initialize Socket.io
-const socket = io("http://localhost:1000");
+const socket = io("https://pms-lts-backend.onrender.com");
 
 const capitalizeFirstLetter = (str: string) =>
   str.charAt(0).toUpperCase() + str.slice(1);

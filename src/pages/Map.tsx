@@ -169,10 +169,8 @@ const Map: React.FC = () => {
   }, [locations]);
 
   useEffect(() => {
-    const socket = io("http://localhost:1000");
+    const socket = io("https://pms-lts-backend.onrender.com");
 
-    
-    
     socket.on(
       "locationUpdate",
       (updatedLocations: { [id: string]: Location }) => {
@@ -295,7 +293,7 @@ const onCreated = (e: L.DrawEvents.Created) => {
   
 
   useEffect(() => {
-    const socket = io("http://localhost:1000");
+    const socket = io("https://pms-lts-backend.onrender.com");
     locations.forEach((location, index) => {
       geofences.forEach((geofence) => {
         const prevLocations = prevLocationsRef.current;

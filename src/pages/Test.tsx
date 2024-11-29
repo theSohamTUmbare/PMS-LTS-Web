@@ -21,7 +21,7 @@ const Test: React.FC = () => {
 
   useEffect(() => {
     // Initialize socket connection
-    const socket = io("http://localhost:1000");
+    const socket = io("https://pms-lts-backend.onrender.com");
 
     // Listen for location updates
     socket.on("locationUpdate", (updatedLocations: { [id: string]: Location }) => {

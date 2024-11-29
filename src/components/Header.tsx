@@ -50,9 +50,9 @@ const Header: React.FC = () => {
           <Link to="/live-map" className="hover:text-blue-400">
             Live Map
           </Link>
-          <Link to="/communication" className="hover:text-blue-400">
+          {/* <Link to="/communication" className="hover:text-blue-400">
             Communication
-          </Link>
+          </Link> */}
           <Link to="/location-history" className="hover:text-blue-400">
             Location History
           </Link>
