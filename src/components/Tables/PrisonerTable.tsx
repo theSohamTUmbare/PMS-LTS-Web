@@ -62,9 +62,11 @@ const PrisonerTable: React.FC = () => {
             alert("Prisoner deleted successfully.");
             window.location.reload();
           } catch (error) {
-            alert(
-              error.response?.data?.message || "Failed to delete prisoner. Please try again."
-            );
+            if(axios.isAxiosError(error)){
+                alert(
+                  error.response?.data?.message || "Failed to delete prisoner. Please try again."
+                );
+            }
           }
         }
       };

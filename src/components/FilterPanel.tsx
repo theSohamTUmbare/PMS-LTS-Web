@@ -14,7 +14,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({ selectedTab }) => {
                     <PrisonerFilter />
                 )}
                 {selectedTab === 'police' && (
-                    <PoliceFilter />
+                    <PoliceFilter  onFilterChange={() => {}}/>
                 )}
                 {selectedTab === 'guards' && (
                     <GuardFilter />

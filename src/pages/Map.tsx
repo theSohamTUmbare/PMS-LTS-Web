@@ -6,7 +6,7 @@ import {
   useMap
 } from "react-leaflet";
 import { EditControl } from "react-leaflet-draw";
-import L, { LatLng } from "leaflet";
+import L, { LatLng, MarkerOptions, PolylineOptions, CircleMarkerOptions } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
 import { AlertType } from "../components/Notifications/Alert";
@@ -21,6 +21,10 @@ interface Location {
   latitude: number;
   longitude: number;
   timestamp: number;
+}
+
+interface CustomOptions extends MarkerOptions, PolylineOptions, CircleMarkerOptions {
+  geofenceId?: string; // Add your custom property here
 }
 
 export interface GeofenceCircle {
@@ -136,6 +140,7 @@ const Map: React.FC = () => {
             fillOpacity: 0.05
           });
           layer = circle;
+          featureGroupRef.current.addLayer(layer);
         } else if (geofence.shape === 'Polygon') {
           const polygon = L.polygon(geofence.coordinates.map(coord => [coord.lat, coord.lng]), {
             color: 'red',
@@ -143,15 +148,16 @@ const Map: React.FC = () => {
             fillOpacity: 0.05,
           });
           layer = polygon;
+          featureGroupRef.current.addLayer(layer);
         } else if (geofence.shape === 'Rectangle') {
           const rectangle = L.rectangle(geofence.coordinates.map(coord => [coord.lat, coord.lng]), {
             color: 'green',
             weight: 1
           });
           layer = rectangle;
+          featureGroupRef.current.addLayer(layer);
         }
 
-        featureGroupRef.current.addLayer(layer);
       });
 
       // Add feature group to the map
@@ -232,7 +238,7 @@ const Map: React.FC = () => {
 const onCreated = (e: L.DrawEvents.Created) => {
   const layer = e.layer;
   const geofenceId = uuidv4();
-  layer.options.geofenceId = geofenceId;
+  (layer.options as CustomOptions).geofenceId = geofenceId;
   if (layer instanceof L.Circle) {
     setShowForm(true);
     const geofence: GeofenceCircle = {
@@ -289,12 +295,12 @@ const onCreated = (e: L.DrawEvents.Created) => {
 
   useEffect(() => {
     const socket = io("https://pms-lts-backend.onrender.com");
-    locations.forEach((location, index) => {
+    locations.forEach((location) => {
       geofences.forEach((geofence) => {
-        const prevLocations = prevLocationsRef.current;
+        // const prevLocations = prevLocationsRef.current;
         const isInGeofence = checkMarkerInGeofence(location, geofence);
-        const prevLocation = prevLocations[index];
-        const prevIsInGeofence = prevLocation ? checkMarkerInGeofence(prevLocation, geofence) : null;
+        // const prevLocation = prevLocations[index];
+        // const prevIsInGeofence = prevLocation ? checkMarkerInGeofence(prevLocation, geofence) : null;
         const alertType = geofence.alert_type === 'Critical' ? AlertType.Critical : geofence.alert_type === 'Warning' ? AlertType.Warning : AlertType.Informational;
         // console.log(geofence);
         // console.log(isInGeofence);
@@ -320,7 +326,7 @@ const onCreated = (e: L.DrawEvents.Created) => {
     // console.log(geofences);
 
     locations.forEach((location) => {
-      const { id, name, trackingId, latitude, longitude } = location;
+      const { id, name, latitude, longitude } = location;
       const newLatLng = new L.LatLng(latitude, longitude);
 
       if (markersRef.current[id]) {
@@ -398,7 +404,7 @@ const onCreated = (e: L.DrawEvents.Created) => {
         center={[16.2487029, 77.3660572]}
         zoom={13}
         style={{ height: "100vh", width: "100%" }}
-        whenCreated={(mapInstance) => (mapRef.current = mapInstance)}
+        ref={mapRef}
       >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -412,7 +418,7 @@ const onCreated = (e: L.DrawEvents.Created) => {
             onCreated={onCreated}
             onDeleted={onDeleted}
             draw={{
-              rectangle: { showArea: false },
+              rectangle: { showArea: false } as any,
               polygon: true,
               circle: true,
               polyline: false,

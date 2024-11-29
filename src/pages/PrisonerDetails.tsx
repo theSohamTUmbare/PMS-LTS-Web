@@ -9,15 +9,15 @@ export interface Prisoner {
   prisoner_id: number;
   first_name: string;
   last_name: string;
-  date_of_birth: Date;
+  date_of_birth: string;
   gender: string;
   national_id: string;
-  entry_date: Date;
-  release_date?: Date;
+  entry_date: string;
+  release_date?: string;
   status: "Incarcerated" | "Released" | "On Trial" | "Transferred";
   cell_id?: number;
-  behavior_record?: object;
-  medical_history?: object;
+  behavior_record?: string;
+  medical_history?: string;
   tracking_device_id?: number;
 }
 
@@ -40,7 +40,7 @@ const PrisonerDetails: React.FC = () => {
     national_id: "",
     entry_date: "",
     status: "",
-    cell_id: "",
+    cell_id: 0,
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const openModal = () => setIsModalOpen(true);
@@ -65,9 +65,11 @@ const PrisonerDetails: React.FC = () => {
         const response = await axios.get(`/api/v1/prisoner/prisonerid/${id}`);
         setPrisoner(response.data.data); // Assuming `data.data` contains the required data.
       } catch (err) {
-        setError(
-          err.response?.data?.message || "Failed to fetch prisoner details"
-        );
+        if(axios.isAxiosError(err)){
+          setError(
+            err.response?.data?.message || "Failed to fetch prisoner details"
+          );
+        }
       }
     };
 
@@ -84,7 +86,7 @@ const PrisonerDetails: React.FC = () => {
         national_id: prisoner.national_id || "",
         entry_date: prisoner.entry_date || "",
         status: prisoner.status || "",
-        cell_id: prisoner.cell_id || "",
+        cell_id: prisoner.cell_id || 0,
       });
     }
   }, [prisoner]);
@@ -136,10 +138,12 @@ const PrisonerDetails: React.FC = () => {
       console.error("Error updating prisoner field:", error);
 
       // Handle errors from the backend or network issues
-      alert(
-        error.response?.data?.message ||
-          `Error updating ${field.replace("_", " ")}.`
-      );
+      if(axios.isAxiosError(error)){
+        alert(
+          error.response?.data?.message ||
+            `Error updating ${field.replace("_", " ")}.`
+        );
+      }
     }
   };
 

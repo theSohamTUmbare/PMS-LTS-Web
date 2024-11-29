@@ -19,7 +19,7 @@ export interface AlertProps {
   index: number;
   type: AlertType;
   message: string;
-  time: Date;
+  time: string;
   prisoner_name: string;
 }
 

@@ -14,7 +14,7 @@ interface PrisonerFormModalProps {
     national_id: string;
     entry_date: string;
     status: string;
-    cell_id: string;
+    cell_id: number;
   };
 }
 

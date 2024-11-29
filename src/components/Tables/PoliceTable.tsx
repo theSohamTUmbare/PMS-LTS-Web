@@ -1,8 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEllipsis } from '@fortawesome/free-solid-svg-icons';
-import { useNavigate } from 'react-router-dom';
 
 
 const PoliceTable: React.FC = () => {
@@ -14,7 +13,6 @@ const PoliceTable: React.FC = () => {
     const [deleteMode, setDeleteMode] = useState<number | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null); // for displaying the error we have created a new state
     const [formData, setFormData] = useState<any>({});
-    const dropdownRef = useRef<HTMLDivElement>(null);
 
     const toggleDropdown = (id: number) => {
         setDropdown(dropdown === id ? null : id);
