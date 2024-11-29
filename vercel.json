@@ -1,0 +1,9 @@
+{
+    "rewrites": [
+      {
+        "source": "/api/:path*",
+        "destination": "https://pms-lts-backend.onrender.com/api/:path*"
+      }
+    ]
+  }
+  
