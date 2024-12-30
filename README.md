@@ -48,8 +48,8 @@ In this project, I contributed to the design and implementation of key features 
 ### Setup
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/repository-name.git
-   cd repository-name
+   git clone https://github.com/theSohamTUmbare/PMS-LTS-Web.git
+   cd PMS-LTS-Web
 2. Install dependencies:
    ```bash
    npm install
@@ -68,7 +68,7 @@ The project follows a well-organized file structure:
 
 
 ## Credits
-- Original Repository:
+- Original Repository: https://github.com/Satyajeet-Das/PMS-LTS-Web
 
 ## Acknowledgments
 Special thanks to my teammates for their collaboration and support throughout this project.
